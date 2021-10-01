@@ -1,4 +1,16 @@
-from mpl_toolkits import mplot3d
+"""
+3d_proj_test.py
+---------------
+
+Code for the International Baccalaureate (IB) Mathematics AA Extended Essay:
+What are the Advantages and Disadvantages of Different Projection Methods?
+
+Written by Yirou (Cynthia) Wang.
+
+Query about the topic or the code are welcomed, but do *not* plagiarize in any means.
+Usages of this code, in sections or in its entirety, need to include a note specifying the original author.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 
