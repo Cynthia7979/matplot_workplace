@@ -26,11 +26,17 @@ import matplotlib.pyplot as plt
 # y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
 # z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
 
-# Square
-label = ("A", "B", "C", "D", "A")
-x = (1, 1, 3, 3, 1)
-y = np.multiply((1, 1, 1, 1, 1), 1)
-z = (1, 3, 3, 1, 1)
+# # Square
+# label = ("A", "B", "C", "D", "A")
+# x = (1, 1, 3, 3, 1)
+# y = np.multiply((1, 1, 1, 1, 1), 1)
+# z = (1, 3, 3, 1, 1)
+
+# Test
+label = []
+x = np.linspace(-1, 1)
+y = x
+z = np.ones_like(y)
 
 
 def draw_3d(fig, ax, x_=x, y_=y, z_=z, label_=label, show_coord=True, annotate=True, linestyle=''):
@@ -101,6 +107,7 @@ def perspective():
     ax3d.text(*vanishing_pt, 'V')
 
     # Plot projection plane
+    # Source: https://stackoverflow.com/questions/29394305/how-does-one-draw-the-x-0-plane-using-matplotlib-mpl3d
     xx, zz = np.meshgrid(range(min(x+(vanishing_pt[0],))-1, max(x+(vanishing_pt[0],))+2),
                          range(min(z+(vanishing_pt[2],))-1, max(z+(vanishing_pt[2],))+2))
     yy = zz * 0
@@ -149,6 +156,58 @@ def perspective():
     plt.show()
 
 
+def curvilinear():
+    center = (0, 0, 0)  # Do not change this
+    radius = 5
+    proj_plane_x = radius+1
+    fig3d, ax3d = plt.subplots(subplot_kw=dict(projection='3d'))
+
+
+
+    # Display the projection sphere
+    # Source: https://stackoverflow.com/questions/11140163/plotting-a-3d-cube-a-sphere-and-a-vector-in-matplotlib
+    u, v = np.mgrid[0:2 * np.pi:20j, 0:np.pi:10j]
+    x_ = (np.cos(u) * np.sin(v) * radius) + center[0]
+    y_ = (np.sin(u) * np.sin(v) * radius) + center[1]
+    z_ = (np.cos(v) * radius) + center[2]
+    ax3d.plot_wireframe(x_, y_, z_, alpha=.3)
+
+    # Display the projection plane
+    # Source: https://stackoverflow.com/questions/29394305/how-does-one-draw-the-x-0-plane-using-matplotlib-mpl3d
+    yy, zz = np.meshgrid(range(-radius-1, radius+2),
+                         range(-radius-1, radius+2))
+    xx = np.ones_like(zz) * proj_plane_x
+    ax3d.plot_surface(xx, yy, zz, alpha=.25, color='b')
+
+    x_sphere, y_sphere, z_sphere = [], [], []
+    for i in range(len(x)):
+        current_point = (x[i], y[i], z[i])
+        projected_point = np.multiply(current_point,
+                                      (radius / np.sqrt(sum(a**2 for a in current_point))))
+        # Attained through similar triangles
+
+        # Calculate primary projected point (on sphere)
+        pri_pro_x, pri_pro_y, pri_pro_z = projected_point
+        x_sphere.append(pri_pro_x)
+        y_sphere.append(pri_pro_y)
+        z_sphere.append(pri_pro_z)
+
+        # Display the projection rays
+        ax3d.plot(
+            (x[i], pri_pro_x), (y[i], pri_pro_y), (z[i], pri_pro_z),
+            'k--',
+            # linewidth=0.5,
+            # alpha=.3
+        )
+    ax3d.plot3D(x_sphere, y_sphere, z_sphere)
+
+    # Project the sphere to y=-radius orthographically
+    fig2d, ax2d = plt.subplots()
+    ax2d.plot(y_sphere, z_sphere)
+    plt.show()
+
+
 if __name__ == '__main__':
-    perspective()
+    # perspective()
     # multi_view()
+    curvilinear()
