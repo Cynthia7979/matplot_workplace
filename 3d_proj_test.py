@@ -20,23 +20,17 @@ import matplotlib.pyplot as plt
 # y = (2, 5, 5, 2, 4, 5, 4, 5)
 # z = (0, 0, 0, 0, 4, 0, 4, 0)
 
-# # Cube
-# label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'B', 'F', 'G', 'C', 'G', 'H', 'D', 'H', 'E')
-# x = (1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1)
-# y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
-# z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
+# Cube
+label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'B', 'F', 'G', 'C', 'G', 'H', 'D', 'H', 'E')
+x = (1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1)
+y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
+z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
 
 # # Square
 # label = ("A", "B", "C", "D", "A")
 # x = (1, 1, 3, 3, 1)
 # y = np.multiply((1, 1, 1, 1, 1), 1)
 # z = (1, 3, 3, 1, 1)
-
-# Test
-label = []
-x = np.linspace(-1, 1)
-y = x
-z = np.ones_like(y)
 
 
 def draw_3d(fig, ax, x_=x, y_=y, z_=z, label_=label, show_coord=True, annotate=True, linestyle=''):
@@ -162,7 +156,8 @@ def curvilinear():
     proj_plane_x = radius+1
     fig3d, ax3d = plt.subplots(subplot_kw=dict(projection='3d'))
 
-
+    # Display the 3D figure
+    draw_3d(fig3d, ax3d, show_coord=False)
 
     # Display the projection sphere
     # Source: https://stackoverflow.com/questions/11140163/plotting-a-3d-cube-a-sphere-and-a-vector-in-matplotlib
@@ -179,9 +174,28 @@ def curvilinear():
     xx = np.ones_like(zz) * proj_plane_x
     ax3d.plot_surface(xx, yy, zz, alpha=.25, color='b')
 
+    # Subdivide the figure into segments of lines to generate curvature effect
+    divided_x, divided_y, divided_z = [], [], []
+    step = 0.01
+    for i in range(len(x)-1):
+        j = i+1
+        # Calculate directional vector between current and next point
+        dir_vector = (x[j]-x[i], y[j]-y[i], z[j]-z[i])
+
+        current_x, current_y, current_z = x[i], y[i], z[i]
+        # Calculate next small point and add it to the lists
+        while current_x < x[j] and current_y < y[j] and current_z < z[j]:
+            divided_x.append(current_x)
+            divided_y.append(current_y)
+            divided_z.append(current_z)
+            current_x += step * dir_vector[0]
+            current_y += step * dir_vector[1]
+            current_z += step * dir_vector[2]
+        # Repeat until we arrive at (or bypass) the next point
+
     x_sphere, y_sphere, z_sphere = [], [], []
-    for i in range(len(x)):
-        current_point = (x[i], y[i], z[i])
+    for i in range(len(divided_x)):
+        current_point = (divided_x[i], divided_y[i], divided_z[i])
         projected_point = np.multiply(current_point,
                                       (radius / np.sqrt(sum(a**2 for a in current_point))))
         # Attained through similar triangles
@@ -194,7 +208,7 @@ def curvilinear():
 
         # Display the projection rays
         ax3d.plot(
-            (x[i], pri_pro_x), (y[i], pri_pro_y), (z[i], pri_pro_z),
+            (divided_x[i], pri_pro_x), (divided_y[i], pri_pro_y), (divided_z[i], pri_pro_z),
             'k--',
             # linewidth=0.5,
             # alpha=.3
