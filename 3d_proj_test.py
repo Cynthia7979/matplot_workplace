@@ -152,12 +152,12 @@ def perspective():
 
 def curvilinear():
     center = (0, 0, 0)  # Do not change this
-    radius = 5
+    radius = 10
     proj_plane_x = radius+1
     fig3d, ax3d = plt.subplots(subplot_kw=dict(projection='3d'))
 
     # Display the 3D figure
-    draw_3d(fig3d, ax3d, show_coord=False)
+    draw_3d(fig3d, ax3d, annotate=False)
 
     # Display the projection sphere
     # Source: https://stackoverflow.com/questions/11140163/plotting-a-3d-cube-a-sphere-and-a-vector-in-matplotlib
@@ -186,7 +186,6 @@ def curvilinear():
             continue
 
         current_x, current_y, current_z = x[i], y[i], z[i]
-        # Calculate next small point and add it to the lists
         while (
                 (current_x <= x[j] and dir_vector[0] > 0) or
                 (current_x >= x[j] and dir_vector[0] < 0) or
@@ -199,40 +198,53 @@ def curvilinear():
                 (current_z <= z[j] and dir_vector[2] > 0) or
                 (current_z >= z[j] and dir_vector[2] < 0) or
                 dir_vector[2] == 0
-        ):
+        ):  # Repeat until we arrive at (or bypass) the next point
+            # Calculate next small point and add it to the lists
             divided_x.append(current_x)
             divided_y.append(current_y)
             divided_z.append(current_z)
             current_x += step * dir_vector[0]
             current_y += step * dir_vector[1]
             current_z += step * dir_vector[2]
-        # Repeat until we arrive at (or bypass) the next point
+
+    def get_primary_projected_point(px, py, pz):  # Syntax sugar
+        point = (px, py, pz)
+        return np.multiply(point, (radius / np.sqrt(sum(a**2 for a in point))))
+        # Attained through similar triangles
 
     x_sphere, y_sphere, z_sphere = [], [], []
     for i in range(len(divided_x)):
-        current_point = (divided_x[i], divided_y[i], divided_z[i])
-        projected_point = np.multiply(current_point,
-                                      (radius / np.sqrt(sum(a**2 for a in current_point))))
-        # Attained through similar triangles
-
-        # Calculate primary projected point (on sphere)
-        pri_pro_x, pri_pro_y, pri_pro_z = projected_point
+        pri_pro_x, pri_pro_y, pri_pro_z = get_primary_projected_point(divided_x[i], divided_y[i], divided_z[i])
         x_sphere.append(pri_pro_x)
         y_sphere.append(pri_pro_y)
         z_sphere.append(pri_pro_z)
+    ax3d.plot3D(
+        x_sphere, y_sphere, z_sphere,
+        'm',
+        alpha=.7
+    )
 
-        # # Display the projection rays
-        # ax3d.plot(
-        #     (divided_x[i], pri_pro_x), (divided_y[i], pri_pro_y), (divided_z[i], pri_pro_z),
-        #     'k--',
-        #     # linewidth=0.5,
-        #     # alpha=.3
-        # )
-    ax3d.plot3D(x_sphere, y_sphere, z_sphere)
+    for i in range(len(x)):
+        # Get primary projected point for original anchor points
+        pri_pro_x, pri_pro_y, pri_pro_z = get_primary_projected_point(x[i], y[i], z[i])
+
+        # Display the projection rays
+        ax3d.plot(
+            (x[i], pri_pro_x), (y[i], pri_pro_y), (z[i], pri_pro_z),
+            'k--',
+            # linewidth=0.5,
+            alpha=.35
+        )
 
     # Project the sphere to y=-radius orthographically
     fig2d, ax2d = plt.subplots()
     ax2d.plot(y_sphere, z_sphere)
+    # Display secondary projected figure
+    ax3d.plot3D(
+        np.ones_like(y_sphere)*proj_plane_x, y_sphere, z_sphere,
+        'r',
+        alpha=.5,
+    )
     plt.show()
 
 
