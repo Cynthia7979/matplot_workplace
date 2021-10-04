@@ -20,17 +20,29 @@ import matplotlib.pyplot as plt
 # y = (2, 5, 5, 2, 4, 5, 4, 5)
 # z = (0, 0, 0, 0, 4, 0, 4, 0)
 
-# Cube
-label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'B', 'F', 'G', 'C', 'G', 'H', 'D', 'H', 'E')
-x = (1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1)
-y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
-z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
+# # Cube
+# label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'B', 'F', 'G', 'C', 'G', 'H', 'D', 'H', 'E')
+# x = (1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1)
+# y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
+# z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
 
 # # Square
 # label = ("A", "B", "C", "D", "A")
 # x = (1, 1, 3, 3, 1)
 # y = np.multiply((1, 1, 1, 1, 1), 1)
 # z = (1, 3, 3, 1, 1)
+
+# # Rotated Square
+# label = ("A", "B", "C", "D", "A")
+# x = np.add((1.41, 2.83, 1.41, 0, 1.41), 5)
+# y = (1.5, 0.5, -0.5, 0.5, 1.5)
+# z = (1, 0, -1, 0, 1)
+
+# Vertical Square
+label = ("A", "B", "C", "D", "A")
+x = np.add((0, 0, 0, 0, 0), 5)
+y = (-1, -1, 2, 2, -1)
+z = (-1, 2, 2, -1, -1)
 
 
 def draw_3d(fig, ax, x_=x, y_=y, z_=z, label_=label, show_coord=True, annotate=True, linestyle=''):
@@ -166,6 +178,10 @@ def curvilinear():
     y_ = (np.sin(u) * np.sin(v) * radius) + center[1]
     z_ = (np.cos(v) * radius) + center[2]
     ax3d.plot_wireframe(x_, y_, z_, alpha=.3)
+
+    # Display sphere center
+    ax3d.plot(*center, 'ro')
+    ax3d.text(*center, 'O')
 
     # Display the projection plane
     # Source: https://stackoverflow.com/questions/29394305/how-does-one-draw-the-x-0-plane-using-matplotlib-mpl3d
