@@ -20,11 +20,17 @@ import matplotlib.pyplot as plt
 # y = (2, 5, 5, 2, 4, 5, 4, 5)
 # z = (0, 0, 0, 0, 4, 0, 4, 0)
 
-# Cube
-label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'B', 'F', 'G', 'C', 'G', 'H', 'D', 'H', 'E')
-x = (1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1)
-y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
-z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
+# # Cube
+# label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'B', 'F', 'G', 'C', 'G', 'H', 'D', 'H', 'E')
+# x = (1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1)
+# y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
+# z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
+
+# # Cube for Curvilinear
+# label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'G', 'H', 'E')
+# x = (1, 1, 3, 3, 1, 1, 1, 3, 3, 1)
+# y = (1, 3, 3, 1, 1, 1, 3, 3, 1, 1)
+# z = (1, 1, 1, 1, 1, 3, 3, 3, 3, 3)
 
 # # Square
 # label = ("A", "B", "C", "D", "A")
@@ -177,14 +183,29 @@ def curvilinear():
     # Subdivide the figure into segments of lines to generate curvature effect
     divided_x, divided_y, divided_z = [], [], []
     step = 0.01
-    for i in range(len(x)-1):
+    for i in range(-1, len(x)-1):
         j = i+1
+
         # Calculate directional vector between current and next point
         dir_vector = (x[j]-x[i], y[j]-y[i], z[j]-z[i])
+        if dir_vector == (0, 0, 0):
+            continue
 
         current_x, current_y, current_z = x[i], y[i], z[i]
         # Calculate next small point and add it to the lists
-        while current_x < x[j] and current_y < y[j] and current_z < z[j]:
+        while (
+                (current_x <= x[j] and dir_vector[0] > 0) or
+                (current_x >= x[j] and dir_vector[0] < 0) or
+                dir_vector[0] == 0
+        ) and (
+                (current_y <= y[j] and dir_vector[1] > 0) or
+                (current_y >= y[j] and dir_vector[1] < 0) or
+                dir_vector[1] == 0
+        ) and (
+                (current_z <= z[j] and dir_vector[2] > 0) or
+                (current_z >= z[j] and dir_vector[2] < 0) or
+                dir_vector[2] == 0
+        ):
             divided_x.append(current_x)
             divided_y.append(current_y)
             divided_z.append(current_z)
@@ -206,13 +227,13 @@ def curvilinear():
         y_sphere.append(pri_pro_y)
         z_sphere.append(pri_pro_z)
 
-        # Display the projection rays
-        ax3d.plot(
-            (divided_x[i], pri_pro_x), (divided_y[i], pri_pro_y), (divided_z[i], pri_pro_z),
-            'k--',
-            # linewidth=0.5,
-            # alpha=.3
-        )
+        # # Display the projection rays
+        # ax3d.plot(
+        #     (divided_x[i], pri_pro_x), (divided_y[i], pri_pro_y), (divided_z[i], pri_pro_z),
+        #     'k--',
+        #     # linewidth=0.5,
+        #     # alpha=.3
+        # )
     ax3d.plot3D(x_sphere, y_sphere, z_sphere)
 
     # Project the sphere to y=-radius orthographically
