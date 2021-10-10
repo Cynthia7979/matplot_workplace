@@ -20,11 +20,11 @@ import matplotlib.pyplot as plt
 # y = (2, 5, 5, 2, 4, 5, 4, 5)
 # z = (0, 0, 0, 0, 4, 0, 4, 0)
 
-# # Cube
-# label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'B', 'F', 'G', 'C', 'G', 'H', 'D', 'H', 'E')
-# x = (1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1)
-# y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
-# z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
+# Cube
+label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'B', 'F', 'G', 'C', 'G', 'H', 'D', 'H', 'E')
+x = (1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1)
+y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
+z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
 
 # # Square
 # label = ("A", "B", "C", "D", "A")
@@ -38,11 +38,11 @@ import matplotlib.pyplot as plt
 # y = (1.5, 0.5, -0.5, 0.5, 1.5)
 # z = (1, 0, -1, 0, 1)
 
-# Vertical Square
-label = ("A", "B", "C", "D", "A")
-x = np.add((0, 0, 0, 0, 0), 5)
-y = (-1, -1, 2, 2, -1)
-z = (-1, 2, 2, -1, -1)
+# # Vertical Square
+# label = ("A", "B", "C", "D", "A")
+# x = np.add((0, 0, 0, 0, 0), 5)
+# y = (-1, -1, 2, 2, -1)
+# z = (-1, 2, 2, -1, -1)
 
 
 def draw_3d(fig, ax, x_=x, y_=y, z_=z, label_=label, show_coord=True, annotate=True, linestyle=''):
@@ -83,6 +83,7 @@ def multi_view():
     draw_3d(fig3d, ax3d)
 
     # Display projection plane
+    # Source: https://stackoverflow.com/questions/29394305/how-does-one-draw-the-x-0-plane-using-matplotlib-mpl3d
     xx, zz = np.meshgrid(range(1, 6), range(6))
     yy = zz * 0
     ax3d.plot_surface(xx, yy, zz, alpha=.25, color='b')
@@ -97,6 +98,47 @@ def multi_view():
 
     # Display the projected figure in 3D
     ax3d.plot3D(x, np.multiply(x, 0), z, 'r', alpha=.5)
+
+    plt.show()
+
+
+def oblique():
+    angle_theta = np.radians(63.4)
+    proj_plane_y = 0
+    fig3d, ax3d = plt.subplots(subplot_kw=dict(projection='3d'))
+
+    # Display the 3D figure
+    draw_3d(fig3d, ax3d)
+
+    # Display projection plane
+    # Source: https://stackoverflow.com/questions/29394305/how-does-one-draw-the-x-0-plane-using-matplotlib-mpl3d
+    xx, zz = np.meshgrid(range(min(x), max(x) + 8),
+                         range(min(z) - 1, max(z) + 2))
+    yy = np.ones_like(zz) * proj_plane_y
+    ax3d.plot_surface(xx, yy, zz, alpha=.25, color='b')
+
+    # Calculate projected figures
+    fig2d, ax2d = plt.subplots()
+    fig2d.suptitle('Projected Figure')
+    x2d, z2d = [], []
+    for i in range(len(x)):
+        x2d.append(x[i] + np.tan(angle_theta)*y[i])
+        z2d.append(z[i])
+
+        # Display projection ray
+        ax3d.plot3D(
+            (x[i], x2d[-1]), (y[i], 0), (z[i], z2d[-1]),
+            'k--'
+        )
+
+    # Display projected figure in 3D
+    ax3d.plot3D(
+        x2d, np.zeros_like(x2d), z2d,
+        alpha=.5
+    )
+    # Display projected figure in 2D
+    ax2d.plot(x2d, z2d)
+    annotate_pts(ax2d, [(x2d[i], z2d[i]) for i in range(len(x2d))])
 
     plt.show()
 
@@ -265,6 +307,7 @@ def curvilinear():
 
 
 if __name__ == '__main__':
-    # perspective()
     # multi_view()
-    curvilinear()
+    oblique()
+    # perspective()
+    # curvilinear()
