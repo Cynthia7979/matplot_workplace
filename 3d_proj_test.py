@@ -20,17 +20,17 @@ import matplotlib.pyplot as plt
 # y = (2, 5, 5, 2, 4, 5, 4, 5)
 # z = (0, 0, 0, 0, 4, 0, 4, 0)
 
-# Cube
-label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'B', 'F', 'G', 'C', 'G', 'H', 'D', 'H', 'E')
-x = (1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1)
-y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
-z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
+# # Cube
+# label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'B', 'F', 'G', 'C', 'G', 'H', 'D', 'H', 'E')
+# x = (1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1)
+# y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
+# z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
 
-# # Square
-# label = ("A", "B", "C", "D", "A")
-# x = (1, 1, 3, 3, 1)
-# y = np.multiply((1, 1, 1, 1, 1), 1)
-# z = (1, 3, 3, 1, 1)
+# Square
+label = ("A", "B", "C", "D", "A")
+x = (1, 1, 3, 3, 1)
+y = np.multiply((1, 1, 1, 1, 1), 1)
+z = (1, 3, 3, 1, 1)
 
 # # Rotated Square
 # label = ("A", "B", "C", "D", "A")
@@ -108,11 +108,16 @@ def oblique():
     fig3d, ax3d = plt.subplots(subplot_kw=dict(projection='3d'))
 
     # Display the 3D figure
-    draw_3d(fig3d, ax3d)
+    draw_3d(
+        fig3d, ax3d,
+        annotate=False
+    )
+    # For perspective comparison:
+    ax3d.plot3D(x, np.multiply(y, 3), z)
 
     # Display projection plane
     # Source: https://stackoverflow.com/questions/29394305/how-does-one-draw-the-x-0-plane-using-matplotlib-mpl3d
-    xx, zz = np.meshgrid(range(min(x), max(x) + 8),
+    xx, zz = np.meshgrid(range(min(x) - 1, max(x) + 8),
                          range(min(z) - 1, max(z) + 2))
     yy = np.ones_like(zz) * proj_plane_y
     ax3d.plot_surface(xx, yy, zz, alpha=.25, color='b')
@@ -138,7 +143,27 @@ def oblique():
     )
     # Display projected figure in 2D
     ax2d.plot(x2d, z2d)
-    annotate_pts(ax2d, [(x2d[i], z2d[i]) for i in range(len(x2d))])
+    # annotate_pts(ax2d, [(x2d[i], z2d[i]) for i in range(len(x2d))])
+
+    # For perspective
+    x2d, z2d = [], []
+    for i in range(len(x)):
+        x2d.append(x[i] + np.tan(angle_theta)*y[i]*3)
+        z2d.append(z[i])
+
+        # Display projection ray
+        ax3d.plot3D(
+            (x[i], x2d[-1]), (y[i]*3, 0), (z[i], z2d[-1]),
+            'k--'
+        )
+
+    # Display projected figure in 3D
+    ax3d.plot3D(
+        x2d, np.zeros_like(x2d), z2d,
+        alpha=.5
+    )
+    # Display projected figure in 2D
+    ax2d.plot(x2d, z2d)
 
     plt.show()
 
