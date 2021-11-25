@@ -7,8 +7,8 @@ What are the Advantages and Disadvantages of Different Projection Methods?
 
 Written by Yirou (Cynthia) Wang.
 
-Query about the topic or the code are welcomed, but do *not* plagiarize in any means.
-Usages of this code, in sections or in its entirety, need to include a note specifying the original author.
+Query about the topic or the code are welcomed.
+Usages of this code, in sections or in its entirety, must cite its source and acknowledge the original author.
 """
 
 import numpy as np
@@ -20,17 +20,17 @@ import matplotlib.pyplot as plt
 # y = (2, 5, 5, 2, 4, 5, 4, 5)
 # z = (0, 0, 0, 0, 4, 0, 4, 0)
 
-# # Cube
-# label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'B', 'F', 'G', 'C', 'G', 'H', 'D', 'H', 'E')
-# x = (1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1)
-# y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
-# z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
+# Cube
+label = ('A', 'B', 'C', 'D', 'A', 'E', 'F', 'B', 'F', 'G', 'C', 'G', 'H', 'D', 'H', 'E')
+x = (1, 1, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1)
+y = (1, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1)
+z = (1, 1, 1, 1, 1, 3, 3, 1, 3, 3, 1, 3, 3, 1, 3, 3)
 
-# Square
-label = ("A", "B", "C", "D", "A")
-x = (1, 1, 3, 3, 1)
-y = np.multiply((1, 1, 1, 1, 1), 1)
-z = (1, 3, 3, 1, 1)
+# # Square
+# label = ("A", "B", "C", "D", "A")
+# x = (1, 1, 3, 3, 1)
+# y = np.multiply((1, 1, 1, 1, 1), 1)
+# z = (1, 3, 3, 1, 1)
 
 # # Rotated Square
 # label = ("A", "B", "C", "D", "A")
@@ -77,7 +77,7 @@ def annotate_pts(ax, coord_list, prec=3, size=10, show_coord=True, label_=label)
     return ax
 
 
-def multi_view():
+def orthographic():
     fig3d, ax3d = plt.subplots(subplot_kw=dict(projection='3d'))
     # Display 3D Figure
     draw_3d(fig3d, ax3d)
@@ -99,6 +99,11 @@ def multi_view():
     # Display the projected figure in 3D
     ax3d.plot3D(x, np.multiply(x, 0), z, 'r', alpha=.5)
 
+    # Display projection rays
+    for i in range(len(x)):
+        px, py, pz = x[i], y[i], z[i]
+        ax3d.plot3D((px, px), (py, 0), (pz, pz), 'k--')
+
     plt.show()
 
 
@@ -113,11 +118,11 @@ def oblique():
         annotate=False
     )
     # For perspective comparison:
-    ax3d.plot3D(x, np.multiply(y, 3), z)
+    # ax3d.plot3D(x, np.multiply(y, 3), z)
 
     # Display projection plane
     # Source: https://stackoverflow.com/questions/29394305/how-does-one-draw-the-x-0-plane-using-matplotlib-mpl3d
-    xx, zz = np.meshgrid(range(min(x) - 1, max(x) + 8),
+    xx, zz = np.meshgrid(range(min(x) - 1, max(x) + 12),
                          range(min(z) - 1, max(z) + 2))
     yy = np.ones_like(zz) * proj_plane_y
     ax3d.plot_surface(xx, yy, zz, alpha=.25, color='b')
@@ -133,7 +138,8 @@ def oblique():
         # Display projection ray
         ax3d.plot3D(
             (x[i], x2d[-1]), (y[i], 0), (z[i], z2d[-1]),
-            'k--'
+            'k--',
+            alpha=0.5
         )
 
     # Display projected figure in 3D
@@ -145,25 +151,25 @@ def oblique():
     ax2d.plot(x2d, z2d)
     # annotate_pts(ax2d, [(x2d[i], z2d[i]) for i in range(len(x2d))])
 
-    # For perspective
-    x2d, z2d = [], []
-    for i in range(len(x)):
-        x2d.append(x[i] + np.tan(angle_theta)*y[i]*3)
-        z2d.append(z[i])
+    # # For perspective
+    # x2d, z2d = [], []
+    # for i in range(len(x)):
+    #     x2d.append(x[i] + np.tan(angle_theta)*y[i]*3)
+    #     z2d.append(z[i])
+    #
+    #     # Display projection ray
+    #     ax3d.plot3D(
+    #         (x[i], x2d[-1]), (y[i]*3, 0), (z[i], z2d[-1]),
+    #         'k--'
+    #     )
 
-        # Display projection ray
-        ax3d.plot3D(
-            (x[i], x2d[-1]), (y[i]*3, 0), (z[i], z2d[-1]),
-            'k--'
-        )
-
-    # Display projected figure in 3D
-    ax3d.plot3D(
-        x2d, np.zeros_like(x2d), z2d,
-        alpha=.5
-    )
-    # Display projected figure in 2D
-    ax2d.plot(x2d, z2d)
+    # # Display projected figure in 3D
+    # ax3d.plot3D(
+    #     x2d, np.zeros_like(x2d), z2d,
+    #     alpha=.5
+    # )
+    # # Display projected figure in 2D
+    # ax2d.plot(x2d, z2d)
 
     plt.show()
 
@@ -332,7 +338,7 @@ def curvilinear():
 
 
 if __name__ == '__main__':
-    # multi_view()
+    # orthographic()
     oblique()
     # perspective()
     # curvilinear()
